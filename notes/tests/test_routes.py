@@ -29,6 +29,7 @@ class TestRoutes(TestCase):
 
     def test_note_create(self):
         """Создание заметки."""
+
         note_count = Note.objects.count()
         self.assertEqual(note_count, 1)
 
@@ -59,7 +60,8 @@ class TestRoutes(TestCase):
             ('notes:detail', slug),
             ('notes:edit', slug),
             ('notes:delete', slug),
-            ('notes:detail', slug)
+            ('notes:add', None),
+            ('notes:list', None),
         )
         for name, args in not_for_guest_urls:
             with self.subTest(name=name):
