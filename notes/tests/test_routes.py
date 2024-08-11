@@ -36,14 +36,14 @@ class TestRoutes(TestCase):
         """Доступ незалогиненному юзеру."""
 
         urls = (
-            ('notes:home', None),
-            ('users:login', None),
-            ('users:logout', None),
-            ('users:signup', None),
+            ('notes:home'),
+            ('users:login'),
+            ('users:logout'),
+            ('users:signup'),
         )
-        for name, args in urls:
+        for name in urls:
             with self.subTest(name=name):
-                url = reverse(name, args=args,)
+                url = reverse(name)
                 responce = self.client.get(url)
                 self.assertEqual(
                     responce.status_code,
@@ -54,20 +54,23 @@ class TestRoutes(TestCase):
         """редирект незалогинненого юзера."""
 
         login_url = reverse('users:login')
+        slug = (self.note.slug,)
         not_for_guest_urls = (
-            'notes:detail',
-            'notes:edit',
-            'notes:delete',
+            ('notes:detail', slug),
+            ('notes:edit', slug),
+            ('notes:delete', slug),
+            ('notes:detail', slug)
         )
-        for name in not_for_guest_urls:
+        for name, args in not_for_guest_urls:
             with self.subTest(name=name):
-                url = reverse(name, args=(self.note.pk,))
+                url = reverse(name, args=args)
                 redirect_url = f'{login_url}?next={url}'
                 responce = self.client.get(url)
                 self.assertRedirects(responce, redirect_url)
 
     def test_availability_for_note_edit_and_delete(self):
         """Удаление и редактирования только автором."""
+
         user_statuses = (
             (self.author, HTTPStatus.OK),
             (self.reader, HTTPStatus.NOT_FOUND),
@@ -76,9 +79,7 @@ class TestRoutes(TestCase):
             self.client.force_login(user)
             for name in ('notes:edit', 'notes:delete'):
                 with self.subTest(user=user, name=name):
-                    url = reverse(name, args=(self.note.pk,))
+                    url = reverse(name, args=(self.note.slug,))
                     responce = self.client.get(url)
                     self.assertEqual(
-                        responce.status_code,
-                        status,
-                        msg='Проверьте права на изменение/удаление заметок.')
+                        responce.status_code, status)
