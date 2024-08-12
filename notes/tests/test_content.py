@@ -26,7 +26,7 @@ class TestNotesList(TestCase):
                 title=f'заметка{index}',
                 text='Текст заметки.',
                 author=cls.author,
-                slug=index
+                slug=str(index)
                 )
                 for index in range(5)]
             )
@@ -36,7 +36,7 @@ class TestNotesList(TestCase):
     def test_only_author_notes(self):
         """Проверка на вывод только заметок автора."""
 
-        # Создаём тестовую заметку от другого автора
+        # Создаём тестовую заметку от другого user'a
         Note.objects.create(
             title='Тестовая заметка',
             text='Текст заметки.',
