@@ -63,6 +63,17 @@ class TestNoteCreation(TestCase):
         note_count = Note.objects.count()
         self.assertEqual(note_count, 1)
 
+    def test_auto_create_slugify_slug(self):
+        """Slug формируется автоматически."""
+
+        note = Note.objects.create(
+            title=self.NOTE_TITLE,
+            text=self.NOTE_TEXT,
+            author=self.user
+        )
+        note_slug = note.slug
+        self.assertEqual(note_slug, slugify(note.title))
+
 
 class TestNoteEditeDelete(TestCase):
     NOTE_TITLE = 'Название заметки'
@@ -84,11 +95,9 @@ class TestNoteEditeDelete(TestCase):
         cls.note = Note.objects.create(
             title=cls.NOTE_TITLE,
             text=cls.NOTE_TEXT,
-            slug=slugify(cls.NOTE_TITLE),
             author=cls.user
         )
         url_arg = (cls.note.slug,)
-        cls.note_url = reverse('notes:detail', args=url_arg)
         cls.note_edit_url = reverse('notes:edit', args=url_arg)
         cls.note_delete_url = reverse('notes:delete', args=url_arg)
         cls.success_url = reverse('notes:success')

@@ -51,16 +51,17 @@ class TestRoutes(TestCase):
                     )
 
     def test_redirect_for_anonymous_client(self):
-        """редирект незалогинненого юзера."""
+        """Редирект незалогинненого юзера."""
 
         login_url = reverse('users:login')
         slug = (self.note.slug,)
         not_for_guest_urls = (
+            ('notes:list', None),
+            ('notes:success', None),
+            ('notes:add', None),
             ('notes:detail', slug),
             ('notes:edit', slug),
-            ('notes:delete', slug),
-            ('notes:add', None),
-            ('notes:list', None),
+            ('notes:delete', slug), 
         )
         for name, args in not_for_guest_urls:
             with self.subTest(name=name):
@@ -70,7 +71,7 @@ class TestRoutes(TestCase):
                 self.assertRedirects(responce, redirect_url)
 
     def test_availability_for_note_edit_and_delete(self):
-        """Удаление и редактирования только автором."""
+        """Страница заметки, удаления и редактирования только автору."""
 
         user_statuses = (
             (self.author, HTTPStatus.OK),
@@ -78,7 +79,7 @@ class TestRoutes(TestCase):
         )
         for user, status in user_statuses:
             self.client.force_login(user)
-            for name in ('notes:edit', 'notes:delete'):
+            for name in ('notes:detail', 'notes:delete', 'notes:edit'):
                 with self.subTest(user=user, name=name):
                     url = reverse(name, args=(self.note.slug,))
                     responce = self.client.get(url)
