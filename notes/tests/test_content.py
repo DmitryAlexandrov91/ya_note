@@ -34,7 +34,7 @@ class TestNotesList(TestCase):
         cls.user_client.force_login(cls.author)
 
     def test_only_author_notes(self):
-        """Проверка на вывод только заметок автора."""
+        """Проверка на отображение только заметок автора."""
 
         # Создаём тестовую заметку от другого user'a
         Note.objects.create(
