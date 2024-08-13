@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -12,6 +11,7 @@ User = get_user_model()
 
 class TestNotesList(TestCase):
     NOTES_URL = reverse('notes:list')
+    NOTES_ON_PER_PAGE = 5
 
     @classmethod
     def setUpTestData(cls):
@@ -28,7 +28,7 @@ class TestNotesList(TestCase):
                 author=cls.author,
                 slug=str(index)
                 )
-                for index in range(5)]
+                for index in range(cls.NOTES_ON_PER_PAGE)]
             )
         cls.user_client = Client()
         cls.user_client.force_login(cls.author)
