@@ -26,12 +26,6 @@ class TestRoutes(TestCase):
             author=cls.author
             )
 
-    def test_note_create(self):
-        """Создание заметки."""
-
-        note_count = Note.objects.count()
-        self.assertEqual(note_count, 1)
-
     def test_pages_for_guest_availability(self):
         """Доступ незалогиненному юзеру."""
 
@@ -61,7 +55,7 @@ class TestRoutes(TestCase):
             ('notes:add', None),
             ('notes:detail', slug),
             ('notes:edit', slug),
-            ('notes:delete', slug), 
+            ('notes:delete', slug),
         )
         for name, args in not_for_guest_urls:
             with self.subTest(name=name):

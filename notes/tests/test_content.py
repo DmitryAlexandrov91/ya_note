@@ -11,14 +11,14 @@ User = get_user_model()
 
 class TestNotesList(TestCase):
     NOTES_URL = reverse('notes:list')
-    NOTES_ON_PER_PAGE = 5
+    NOTES_FOR_TEST = 5
 
     @classmethod
     def setUpTestData(cls):
         cls.author = User.objects.create(
             username='Автор'
         )
-        cls.reader = User.objects.create(
+        cls.another_user = User.objects.create(
             username='Другой пользователь'
         )
         Note.objects.bulk_create(
@@ -28,7 +28,12 @@ class TestNotesList(TestCase):
                 author=cls.author,
                 slug=str(index)
                 )
-                for index in range(cls.NOTES_ON_PER_PAGE)]
+                for index in range(cls.NOTES_FOR_TEST)]
+            )
+        cls.note = Note.objects.create(
+            title='Тестовая заметка',
+            text='Текст заметки.',
+            author=cls.another_user,
             )
         cls.user_client = Client()
         cls.user_client.force_login(cls.author)
@@ -36,13 +41,6 @@ class TestNotesList(TestCase):
     def test_only_author_notes(self):
         """Проверка на отображение только заметок автора."""
 
-        # Создаём тестовую заметку от другого user'a
-        Note.objects.create(
-            title='Тестовая заметка',
-            text='Текст заметки.',
-            author=self.reader,
-            slug='zametka'
-            )
         response = self.user_client.get(self.NOTES_URL)
         object_list = response.context['object_list']
         author_notes_list = Note.objects.filter(
@@ -59,10 +57,20 @@ class TestNotesList(TestCase):
         sorted_dates = sorted(author_notes)
         self.assertEqual(author_notes, sorted_dates)
 
-    def test_authorized_client_has_form(self):
+    def test_authorized_client_has_create_note_form(self):
         """Проверка наличия формы на странице создания заметки."""
 
         response = self.user_client.get(
             reverse('notes:add'))
+        self.assertIn('form', response.context)
+        self.assertIsInstance(response.context['form'], NoteForm)
+
+    def test_authorized_client_has_edit_note_form(self):
+        """Проверка наличия формы на странице редактирования заметки."""
+
+        another_user_client = Client()
+        another_user_client.force_login(self.another_user)
+        response = another_user_client.get(
+            reverse('notes:edit', kwargs={'slug': self.note.slug}))
         self.assertIn('form', response.context)
         self.assertIsInstance(response.context['form'], NoteForm)
